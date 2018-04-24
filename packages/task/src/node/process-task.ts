@@ -7,7 +7,7 @@
 
 import { injectable, inject, named } from 'inversify';
 import { ILogger } from '@theia/core/lib/common/';
-import { ProcessType, TaskInfo } from '../common/task-protocol';
+import { ProcessType, TaskInfo, Task } from '../common/task-protocol';
 import { TaskManager } from './task-manager';
 import { Process, ProcessManager } from "@theia/process/lib/node";
 
@@ -21,10 +21,10 @@ export interface TaskProcessOptions {
 }
 
 export const TaskFactory = Symbol("TaskFactory");
-export type TaskFactory = (options: TaskProcessOptions) => Task;
+export type TaskFactory = (options: TaskProcessOptions) => ProcessTask;
 
 @injectable()
-export class Task {
+export class ProcessTask implements Task {
     protected taskId: number;
 
     constructor(

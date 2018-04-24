@@ -8,6 +8,7 @@
 import { JsonRpcServer } from '@theia/core/lib/common/messaging/proxy-factory';
 import { RawProcessOptions } from '@theia/process/lib/node/raw-process';
 import { TerminalProcessOptions } from '@theia/process/lib/node/terminal-process';
+import { Disposable } from '@theia/core';
 
 export const taskPath = '/services/task';
 
@@ -69,6 +70,29 @@ export interface TaskServer extends JsonRpcServer<TaskClient> {
 
     /** removes the client that has disconnected */
     disconnectClient(client: TaskClient): void;
+}
+
+export interface TaskResolver {
+    resolveTask(task: TaskOptions): Promise<TaskOptions>;
+}
+export const TaskResolverRegistry = Symbol('TaskResolverRegistry');
+export interface TaskResolverRegistry {
+    register(type: string, runner: TaskResolver): Disposable;
+    getResolver(type: string): TaskResolver | undefined;
+}
+
+export interface TaskRunner {
+    type: string;
+    run(options: TaskOptions, ctx?: string): Promise<Task>;
+}
+export const TaskRunnerRegistry = Symbol('TaskRunnerRegistry');
+export interface TaskRunnerRegistry {
+    register(runner: TaskRunner): Disposable;
+    getRunner(type: string): TaskRunner | undefined;
+}
+export interface Task {
+    kill(): Promise<void>;
+    getRuntimeInfo(): TaskInfo;
 }
 
 /** Event sent when a task has concluded its execution */

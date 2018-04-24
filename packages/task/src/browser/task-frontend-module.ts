@@ -9,12 +9,13 @@ import { ContainerModule } from 'inversify';
 import { CommandContribution, MenuContribution } from '@theia/core/lib/common';
 import { TaskFrontendContribution } from './task-frontend-contribution';
 import { WebSocketConnectionProvider } from '@theia/core/lib/browser/messaging';
-import { TaskServer, taskPath } from '../common/task-protocol';
+import { TaskServer, taskPath, TaskResolverRegistry } from '../common/task-protocol';
 import { TaskWatcher } from '../common/task-watcher';
 import { TaskService } from './task-service';
 import { QuickOpenTask } from './quick-open-task';
 import { TaskConfigurations } from './task-configurations';
 import { createCommonBindings } from '../common/task-common-module';
+import { TaskResolverRegistryImpl } from './process-resolver-registry';
 
 export default new ContainerModule(bind => {
     bind(TaskFrontendContribution).toSelf().inSingletonScope();
@@ -32,4 +33,6 @@ export default new ContainerModule(bind => {
     }).inSingletonScope();
 
     createCommonBindings(bind);
+
+    bind(TaskResolverRegistry).to(TaskResolverRegistryImpl).inSingletonScope();
 });

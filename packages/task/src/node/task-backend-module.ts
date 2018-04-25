@@ -8,13 +8,16 @@
 import { ContainerModule, Container } from 'inversify';
 import { ConnectionHandler, JsonRpcConnectionHandler } from "@theia/core/lib/common/messaging";
 import { ProcessTask, TaskFactory, TaskProcessOptions } from './process-task';
-import { TaskClient, TaskServer, taskPath, TaskRunnerRegistry } from '../common/task-protocol';
+import { TaskClient, TaskServer, taskPath, TaskRunnerRegistry, TaskRunner, TaskRunnerContribution } from '../common/task-protocol';
 import { TaskServerImpl } from './task-server';
 import { TaskManager } from './task-manager';
 import { TaskWatcher } from '../common/task-watcher';
 import { BackendApplicationContribution } from '@theia/core/lib/node';
 import { createCommonBindings } from '../common/task-common-module';
 import { TaskRunnerRegistryImpl } from './process-runner-registry';
+import { ProcessRunner } from './process-runner';
+import { bindContributionProvider } from '@theia/core';
+import { TaskBackendContribution } from './task-backend-contribution';
 
 export default new ContainerModule(bind => {
 
@@ -47,5 +50,16 @@ export default new ContainerModule(bind => {
 
     createCommonBindings(bind);
 
+    bind(TaskBackendContribution).toSelf().inSingletonScope();
+    for (const identifier of [BackendApplicationContribution, TaskRunnerContribution]) {
+        bind(identifier).toService(TaskBackendContribution);
+    }
+
+    // task runner
     bind(TaskRunnerRegistry).to(TaskRunnerRegistryImpl).inSingletonScope();
+    bindContributionProvider(bind, TaskRunnerContribution);
+
+    // process task type
+    bind(ProcessRunner).toSelf().inSingletonScope();
+    bind(TaskRunner).to(ProcessRunner).inSingletonScope();
 });

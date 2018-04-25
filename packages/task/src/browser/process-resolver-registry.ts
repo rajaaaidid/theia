@@ -8,7 +8,6 @@
 import { injectable, postConstruct } from 'inversify';
 import { Disposable } from '@theia/core';
 import { TaskResolverRegistry, TaskResolver } from '../common/task-protocol';
-import { ProcessTaskResolver } from './process-task-resolver';
 
 @injectable()
 export class TaskResolverRegistryImpl implements TaskResolverRegistry {
@@ -18,14 +17,13 @@ export class TaskResolverRegistryImpl implements TaskResolverRegistry {
     @postConstruct()
     protected init(): void {
         this.resolvers = new Map();
-
-        // TODO: inject
-        this.register('raw', new ProcessTaskResolver());
     }
 
     register(type: string, resolver: TaskResolver): Disposable {
         this.resolvers.set(type, resolver);
-        return { dispose: () => { } };
+        return {
+            dispose: () => this.resolvers.delete(type)
+        };
     }
 
     getResolver(type: string): TaskResolver | undefined {

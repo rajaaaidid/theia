@@ -69,7 +69,7 @@ export class TaskServerImpl implements TaskServer {
     }
 
     async run(options: TaskOptions, ctx?: string): Promise<TaskInfo> {
-        const taskType = '';
+        const taskType = 'raw';
         const runner = this.runnerRegistry.getRunner(taskType);
         if (!runner) {
             return Promise.reject(new Error(`No corresponding Runner found for the Task type ${taskType}`));

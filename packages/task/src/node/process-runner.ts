@@ -8,12 +8,12 @@
 import { injectable, inject, named } from 'inversify';
 import { isWindows, ILogger } from '@theia/core';
 import { FileUri } from '@theia/core/lib/node';
-import { TerminalProcess, RawProcess, TerminalProcessOptions, RawProcessOptions, RawProcessFactory, TerminalProcessFactory } from '@theia/process/libnode';
+import { TerminalProcess, RawProcess, TerminalProcessOptions, RawProcessOptions, RawProcessFactory, TerminalProcessFactory } from '@theia/process/lib/node';
 import { ProcessTask, TaskFactory } from './process-task';
 import { TaskRunner, Task, TaskOptions } from '../common/task-protocol';
+import URI from '@theia/core/lib/common/uri';
 import * as fs from 'fs';
 import * as path from 'path';
-import URI from '@theia/core/lib/common/uri';
 
 @injectable()
 export class ProcessRunner implements TaskRunner {
@@ -28,7 +28,6 @@ export class ProcessRunner implements TaskRunner {
 
     @inject(TerminalProcessFactory)
     protected readonly terminalProcessFactory: TerminalProcessFactory;
-
 
     @inject(TaskFactory)
     protected readonly taskFactory: TaskFactory;
@@ -86,7 +85,7 @@ export class ProcessRunner implements TaskRunner {
                         context: ctx
                     });
 
-                // TODO
+                // TODO: move to process-server
                 // this.tasksToDispose.set(task.id,
                 //     proc.onExit(event => {
                 //         this.fireTaskExitedEvent({

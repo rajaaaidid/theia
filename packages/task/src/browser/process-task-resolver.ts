@@ -6,9 +6,9 @@
  */
 
 import { injectable, inject } from 'inversify';
-import { TaskResolver, TaskOptions } from '../common/task-protocol';
-import { ProcessOptions } from '@theia/process/libnode';
+import { ProcessOptions } from '@theia/process/lib/node';
 import { VariableResolverService } from '@theia/variable-resolver/lib/browser';
+import { TaskResolver, ProcessTaskConfiguration } from '../common/task-protocol';
 
 @injectable()
 export class ProcessTaskResolver implements TaskResolver {
@@ -16,20 +16,16 @@ export class ProcessTaskResolver implements TaskResolver {
     @inject(VariableResolverService)
     protected readonly variableResolverService: VariableResolverService;
 
-    resolveTask(task: TaskOptions): Promise<TaskOptions> {
-        return this.prepareTaskConfiguration(task);
-    }
-
     /**
      * Perform some adjustments to the task launch configuration, before sending
      * it to the backend to be executed. We can make sure that parameters that
      * are optional to the user but required by the server will be defined, with
      * sane default values. Also, resolve all known variables, e.g. `${workspaceFolder}`.
      */
-    protected async prepareTaskConfiguration(task: TaskOptions): Promise<TaskOptions> {
-        const resultTask: TaskOptions = {
+    async resolveTask(task: ProcessTaskConfiguration): Promise<ProcessTaskConfiguration> {
+        const resultTask: ProcessTaskConfiguration = {
+            type: task.type,
             label: task.label,
-            processType: task.processType ? task.processType : 'terminal',
             processOptions: await this.resolveVariablesInOptions(task.processOptions)
         };
         if (task.windowsProcessOptions) {
@@ -52,5 +48,4 @@ export class ProcessTaskResolver implements TaskResolver {
         resultOptions.options = options.options;
         return resultOptions;
     }
-
 }

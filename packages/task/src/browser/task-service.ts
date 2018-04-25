@@ -8,7 +8,7 @@
 import { inject, injectable, named, postConstruct } from "inversify";
 import { ILogger } from '@theia/core/lib/common';
 import { FrontendApplication, ApplicationShell } from '@theia/core/lib/browser';
-import { TaskServer, TaskExitedEvent, TaskOptions, TaskInfo, TaskResolverRegistry } from '../common/task-protocol';
+import { TaskServer, TaskExitedEvent, TaskInfo, TaskResolverRegistry } from '../common/task-protocol';
 import { TERMINAL_WIDGET_FACTORY_ID, TerminalWidgetFactoryOptions } from '@theia/terminal/lib/browser/terminal-widget';
 import { WidgetManager } from '@theia/core/lib/browser/widget-manager';
 import { TaskWatcher } from '../common/task-watcher';
@@ -17,7 +17,6 @@ import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service
 import { TaskConfigurations, TaskConfigurationClient } from './task-configurations';
 import { TerminalWidget } from '@theia/terminal/lib/browser/terminal-widget';
 import { VariableResolverService } from "@theia/variable-resolver/lib/browser";
-import { ProcessOptions } from "@theia/process/lib/node";
 
 @injectable()
 export class TaskService implements TaskConfigurationClient {
@@ -131,7 +130,8 @@ export class TaskService implements TaskConfigurationClient {
             return;
         }
 
-        const type = '';
+        // TODO: get type from the Task
+        const type = 'raw';
         const resolver = this.resolverRegistry.getResolver(type);
         const toRun = resolver ? await resolver.resolveTask(task) : task;
 

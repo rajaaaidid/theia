@@ -7,7 +7,6 @@
 
 import { injectable, postConstruct } from 'inversify';
 import { Disposable } from '@theia/core';
-import { ProcessRunner } from './process-runner';
 import { TaskRunnerRegistry, TaskRunner } from '../common/task-protocol';
 
 @injectable()
@@ -18,13 +17,11 @@ export class TaskRunnerRegistryImpl implements TaskRunnerRegistry {
     @postConstruct()
     protected init(): void {
         this.runners = new Map();
-        // TODO: inject
-        this.register(new ProcessRunner());
     }
 
-    register(runner: TaskRunner): Disposable {
+    registerRunner(runner: TaskRunner): Disposable {
         this.runners.set(runner.type, runner);
-        return { dispose: () => { } };
+        return { dispose: () => this.runners.delete(runner.type) };
     }
 
     getRunner(type: string): TaskRunner | undefined {

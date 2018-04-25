@@ -17,21 +17,38 @@ export const TaskClient = Symbol('TaskClient');
 
 export type ProcessType = 'terminal' | 'raw';
 
-export interface TaskInfo {
-    /** internal unique task id */
-    taskId: number,
-    /** terminal id. Defined if task is run as a terminal process */
-    terminalId?: number,
-    /** internal unique process id */
-    processId?: number,
-    /** OS PID of the process running the task */
-    osProcessId: number,
-    /** The command used to start this task */
-    command: string,
-    /** task label */
-    label: string,
-    /** context that was passed as part of task creation, if any */
-    ctx?: string
+export interface TaskConfiguration {
+    type: string;
+    label: string;
+
+    /**
+     * Additional task type specific properties.
+     */
+    [key: string]: any;
+}
+export interface RawOrProcessTaskConfiguration extends TaskConfiguration {
+    type: 'raw' | 'terminal';
+    /** contains 'command', 'args?', 'options?' */
+    processOptions: RawProcessOptions | TerminalProcessOptions;
+    /**
+     * windows version of processOptions. Used in preference on Windows, if
+     * defined
+     */
+    windowsProcessOptions?: RawProcessOptions | TerminalProcessOptions;
+    /**
+     * The 'current working directory' the task will run in. Can be a uri-as-string
+     * or plain string path. If the cwd is meant to be somewhere under the workspace,
+     * one can use the variable `${workspaceFolder}`, which will be replaced by its path,
+     * at runtime. If not specified, defaults to the workspace root.
+     * ex:  cwd: '${workspaceFolder}/foo'
+     */
+    cwd?: string;
+}
+export interface RawTaskConfiguration extends RawOrProcessTaskConfiguration {
+    type: 'raw';
+}
+export interface ProcessTaskConfiguration extends RawOrProcessTaskConfiguration {
+    type: 'terminal';
 }
 
 export interface TaskOptions {
@@ -56,6 +73,23 @@ export interface TaskOptions {
     cwd?: string
 }
 
+export interface TaskInfo {
+    /** internal unique task id */
+    taskId: number,
+    /** terminal id. Defined if task is run as a terminal process */
+    terminalId?: number,
+    /** internal unique process id */
+    processId?: number,
+    /** OS PID of the process running the task */
+    osProcessId: number,
+    /** The command used to start this task */
+    command: string,
+    /** task label */
+    label: string,
+    /** context that was passed as part of task creation, if any */
+    ctx?: string
+}
+
 export interface TaskServer extends JsonRpcServer<TaskClient> {
     /** Run a task. Optionally pass a context.  */
     run(task: TaskOptions, ctx?: string): Promise<TaskInfo>;
@@ -72,8 +106,16 @@ export interface TaskServer extends JsonRpcServer<TaskClient> {
     disconnectClient(client: TaskClient): void;
 }
 
+export const TaskContribution = Symbol('TaskContribution');
+/**
+ * The Task Contribution should be implemented to register custom Resolvers.
+ */
+export interface TaskContribution {
+    registerResolvers(resolvers: TaskResolverRegistry): void;
+}
+export const TaskResolver = Symbol('TaskResolver');
 export interface TaskResolver {
-    resolveTask(task: TaskOptions): Promise<TaskOptions>;
+    resolveTask(task: TaskConfiguration): Promise<TaskConfiguration>;
 }
 export const TaskResolverRegistry = Symbol('TaskResolverRegistry');
 export interface TaskResolverRegistry {
@@ -81,16 +123,26 @@ export interface TaskResolverRegistry {
     getResolver(type: string): TaskResolver | undefined;
 }
 
+export const TaskRunnerContribution = Symbol('TaskRunnerContribution');
+/**
+ * The Task Runner Contribution should be implemented to register custom Runners.
+ */
+export interface TaskRunnerContribution {
+    registerRunner(runners: TaskRunnerRegistry): void;
+}
+export const TaskRunner = Symbol('TaskRunner');
 export interface TaskRunner {
     type: string;
     run(options: TaskOptions, ctx?: string): Promise<Task>;
 }
 export const TaskRunnerRegistry = Symbol('TaskRunnerRegistry');
 export interface TaskRunnerRegistry {
-    register(runner: TaskRunner): Disposable;
+    registerRunner(runner: TaskRunner): Disposable;
     getRunner(type: string): TaskRunner | undefined;
 }
 export interface Task {
+    id: number;
+    context?: string;
     kill(): Promise<void>;
     getRuntimeInfo(): TaskInfo;
 }

@@ -8,14 +8,14 @@
 import { injectable, inject, named } from 'inversify';
 import { ContributionProvider } from '@theia/core';
 import { BackendApplicationContribution } from '@theia/core/lib/node';
-import { ProcessRunner } from './process-runner';
+import { RawOrTerminalTaskRunner } from './raw-or-terminal-task-runner';
 import { TaskRunnerContribution, TaskRunnerRegistry } from '../common/task-protocol';
 
 @injectable()
 export class TaskBackendContribution implements BackendApplicationContribution, TaskRunnerContribution {
 
-    @inject(ProcessRunner)
-    protected readonly processRunner: ProcessRunner;
+    @inject(RawOrTerminalTaskRunner)
+    protected readonly processRunner: RawOrTerminalTaskRunner;
 
     @inject(ContributionProvider) @named(TaskRunnerContribution)
     protected readonly contributionProvider: ContributionProvider<TaskRunnerContribution>;

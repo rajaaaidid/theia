@@ -10,15 +10,15 @@ import { isWindows, ILogger } from '@theia/core';
 import { FileUri } from '@theia/core/lib/node';
 import { TerminalProcess, RawProcess, TerminalProcessOptions, RawProcessOptions, RawProcessFactory, TerminalProcessFactory } from '@theia/process/lib/node';
 import { ProcessTask, TaskFactory } from './process-task';
-import { TaskRunner, Task, TaskOptions } from '../common/task-protocol';
+import { TaskRunner, Task, RawTaskConfiguration } from '../common/task-protocol';
 import URI from '@theia/core/lib/common/uri';
 import * as fs from 'fs';
 import * as path from 'path';
 
 @injectable()
-export class ProcessRunner implements TaskRunner {
+export class RawOrTerminalTaskRunner implements TaskRunner {
 
-    type = 'raw';
+    type = 'raw'; // TODO: terminal
 
     @inject(ILogger) @named('task')
     protected readonly logger: ILogger;
@@ -32,7 +32,7 @@ export class ProcessRunner implements TaskRunner {
     @inject(TaskFactory)
     protected readonly taskFactory: TaskFactory;
 
-    async run(options: TaskOptions, ctx?: string): Promise<Task> {
+    async run(options: RawTaskConfiguration, ctx?: string): Promise<Task> {
         // on windows, prefer windows-specific options, if available
         const processOptions = (isWindows && options.windowsProcessOptions !== undefined) ?
             options.windowsProcessOptions : options.processOptions;

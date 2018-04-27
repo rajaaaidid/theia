@@ -26,7 +26,9 @@ export interface TaskConfiguration {
      */
     [key: string]: any;
 }
-export interface RawOrProcessTaskConfiguration extends TaskConfiguration {
+export interface RawOrTerminalTaskConfiguration extends TaskConfiguration {
+    // TODO: remove
+    processType: ProcessType;
     type: 'raw' | 'terminal';
     /** contains 'command', 'args?', 'options?' */
     processOptions: RawProcessOptions | TerminalProcessOptions;
@@ -44,13 +46,14 @@ export interface RawOrProcessTaskConfiguration extends TaskConfiguration {
      */
     cwd?: string;
 }
-export interface RawTaskConfiguration extends RawOrProcessTaskConfiguration {
+export interface RawTaskConfiguration extends RawOrTerminalTaskConfiguration {
     type: 'raw';
 }
-export interface ProcessTaskConfiguration extends RawOrProcessTaskConfiguration {
+export interface TerminalTaskConfiguration extends RawOrTerminalTaskConfiguration {
     type: 'terminal';
 }
 
+// TODO: remove
 export interface TaskOptions {
     /** A label that uniquely identifies a task configuration */
     label: string,
@@ -92,7 +95,7 @@ export interface TaskInfo {
 
 export interface TaskServer extends JsonRpcServer<TaskClient> {
     /** Run a task. Optionally pass a context.  */
-    run(task: TaskOptions, ctx?: string): Promise<TaskInfo>;
+    run(task: TaskConfiguration, ctx?: string): Promise<TaskInfo>;
     /** Kill a task, by id. */
     kill(taskId: number): Promise<void>;
     /**
@@ -133,7 +136,7 @@ export interface TaskRunnerContribution {
 export const TaskRunner = Symbol('TaskRunner');
 export interface TaskRunner {
     type: string;
-    run(options: TaskOptions, ctx?: string): Promise<Task>;
+    run(options: TaskConfiguration, ctx?: string): Promise<Task>;
 }
 export const TaskRunnerRegistry = Symbol('TaskRunnerRegistry');
 export interface TaskRunnerRegistry {

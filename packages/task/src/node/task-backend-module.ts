@@ -14,10 +14,12 @@ import { TaskManager } from './task-manager';
 import { TaskWatcher } from '../common/task-watcher';
 import { BackendApplicationContribution } from '@theia/core/lib/node';
 import { createCommonBindings } from '../common/task-common-module';
-import { TaskRunnerRegistryImpl } from './process-runner-registry';
-import { ProcessRunner } from './process-runner';
+import { TaskRunnerRegistryImpl } from './task-runner-registry';
+import { RawOrTerminalTaskRunner } from './raw-or-terminal-task-runner';
 import { bindContributionProvider } from '@theia/core';
 import { TaskBackendContribution } from './task-backend-contribution';
+import { CheTaskRunner } from './che/che-task-runner';
+import { CheTaskBackendContribution } from './che/che-task-backend-contribution';
 
 export default new ContainerModule(bind => {
 
@@ -59,7 +61,12 @@ export default new ContainerModule(bind => {
     bind(TaskRunnerRegistry).to(TaskRunnerRegistryImpl).inSingletonScope();
     bindContributionProvider(bind, TaskRunnerContribution);
 
-    // process task type
-    bind(ProcessRunner).toSelf().inSingletonScope();
-    bind(TaskRunner).to(ProcessRunner).inSingletonScope();
+    // raw/process task
+    bind(RawOrTerminalTaskRunner).toSelf().inSingletonScope();
+    bind(TaskRunner).to(RawOrTerminalTaskRunner).inSingletonScope();
+
+    // Che task
+    bind(CheTaskRunner).toSelf().inSingletonScope();
+    bind(TaskRunner).to(CheTaskRunner).inSingletonScope();
+    bind(TaskRunnerContribution).to(CheTaskBackendContribution).inSingletonScope();
 });

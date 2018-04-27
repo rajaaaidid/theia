@@ -8,7 +8,7 @@
 import { injectable, inject } from 'inversify';
 import { ProcessOptions } from '@theia/process/lib/node';
 import { VariableResolverService } from '@theia/variable-resolver/lib/browser';
-import { TaskResolver, ProcessTaskConfiguration } from '../common/task-protocol';
+import { TaskResolver, TerminalTaskConfiguration } from '../common/task-protocol';
 
 @injectable()
 export class ProcessTaskResolver implements TaskResolver {
@@ -22,8 +22,9 @@ export class ProcessTaskResolver implements TaskResolver {
      * are optional to the user but required by the server will be defined, with
      * sane default values. Also, resolve all known variables, e.g. `${workspaceFolder}`.
      */
-    async resolveTask(task: ProcessTaskConfiguration): Promise<ProcessTaskConfiguration> {
-        const resultTask: ProcessTaskConfiguration = {
+    async resolveTask(task: TerminalTaskConfiguration): Promise<TerminalTaskConfiguration> {
+        const resultTask: TerminalTaskConfiguration = {
+            processType: task.processType,
             type: task.type,
             label: task.label,
             processOptions: await this.resolveVariablesInOptions(task.processOptions)

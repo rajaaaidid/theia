@@ -130,9 +130,7 @@ export class TaskService implements TaskConfigurationClient {
             return;
         }
 
-        // TODO: get type from the Task
-        const type = 'raw';
-        const resolver = this.resolverRegistry.getResolver(type);
+        const resolver = this.resolverRegistry.getResolver(task.type);
         const toRun = resolver ? await resolver.resolveTask(task) : task;
 
         try {

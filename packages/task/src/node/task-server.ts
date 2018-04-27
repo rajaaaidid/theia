@@ -7,7 +7,7 @@
 
 import { inject, injectable, named, postConstruct } from 'inversify';
 import { ILogger, Disposable } from '@theia/core/lib/common/';
-import { TaskClient, TaskExitedEvent, TaskInfo, TaskOptions, TaskServer, TaskRunnerRegistry } from '../common/task-protocol';
+import { TaskClient, TaskExitedEvent, TaskInfo, TaskServer, TaskRunnerRegistry, TaskConfiguration } from '../common/task-protocol';
 import { TaskFactory } from './process-task';
 import { RawProcessFactory } from '@theia/process/lib/node/';
 import { TerminalProcessFactory } from '@theia/process/lib/node/';
@@ -55,21 +55,21 @@ export class TaskServerImpl implements TaskServer {
     }
 
     getTasks(context?: string | undefined): Promise<TaskInfo[]> {
-        const taskinfo: TaskInfo[] = [];
+        const taskInfo: TaskInfo[] = [];
 
         const tasks = this.taskManager.getTasks(context);
         if (tasks !== undefined) {
             for (const task of tasks) {
-                taskinfo.push(task.getRuntimeInfo());
+                taskInfo.push(task.getRuntimeInfo());
             }
         }
-        this.logger.debug(`getTasks(): about to return task information for ${taskinfo.length} tasks`);
+        this.logger.debug(`getTasks(): about to return task information for ${taskInfo.length} tasks`);
 
-        return Promise.resolve(taskinfo);
+        return Promise.resolve(taskInfo);
     }
 
-    async run(options: TaskOptions, ctx?: string): Promise<TaskInfo> {
-        const taskType = 'raw';
+    async run(options: TaskConfiguration, ctx?: string): Promise<TaskInfo> {
+        const taskType = options.type;
         const runner = this.runnerRegistry.getRunner(taskType);
         if (!runner) {
             return Promise.reject(new Error(`No corresponding Runner found for the Task type ${taskType}`));

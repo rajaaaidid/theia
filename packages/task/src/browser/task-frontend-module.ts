@@ -18,6 +18,10 @@ import { createCommonBindings } from '../common/task-common-module';
 import { TaskResolverRegistryImpl } from './process-resolver-registry';
 import { FrontendApplicationContribution } from '@theia/core/lib/browser';
 import { ProcessTaskResolver } from './process-task-resolver';
+import { CheTaskResolver } from './che/che-task-resolver';
+import { CheTaskFrontendContribution } from './che/che-task-frontend-contribution';
+import { NpmTaskResolver } from './npm/npm-task-resolver';
+import { NpmTaskFrontendContribution } from './npm/npm-task-frontend-contribution';
 
 export default new ContainerModule(bind => {
     bind(TaskFrontendContribution).toSelf().inSingletonScope();
@@ -42,7 +46,17 @@ export default new ContainerModule(bind => {
     bind(TaskResolverRegistry).to(TaskResolverRegistryImpl).inSingletonScope();
     bindContributionProvider(bind, TaskContribution);
 
-    // process task resolver
+    // process task
     bind(ProcessTaskResolver).toSelf().inSingletonScope();
     bind(TaskResolver).to(ProcessTaskResolver).inSingletonScope();
+
+    // Che task
+    bind(CheTaskResolver).toSelf().inSingletonScope();
+    bind(TaskResolver).to(CheTaskResolver).inSingletonScope();
+    bind(TaskContribution).to(CheTaskFrontendContribution).inSingletonScope();
+
+    // npm task
+    bind(NpmTaskResolver).toSelf().inSingletonScope();
+    bind(TaskResolver).to(NpmTaskResolver).inSingletonScope();
+    bind(TaskContribution).to(NpmTaskFrontendContribution).inSingletonScope();
 });
